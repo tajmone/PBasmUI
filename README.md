@@ -2,13 +2,13 @@
 
     PureBASIC v5.61 | Windows
 
-This project is an offshoot of Horst Schaeffer's __PBasmUI__ --- a PureBASIC IDE Add-In to create, view, edit and re-assemble the intermediate assembly code from PureBASIC source files:
+This project is an offshoot of Horst Schaeffer's __PBasmUI__ — a PureBASIC IDE Add-In to create, view, edit and re-assemble the intermediate assembly code from PureBASIC source files:
 
 - http://horstmuc.de/pb.htm
 
 Maintained by Tristano Ajmone, with the kind permission of Horst Schaeffer.
 
------
+---
 
 **Table of Contents**
 
@@ -18,19 +18,22 @@ Maintained by Tristano Ajmone, with the kind permission of Horst Schaeffer.
 - [About This Project](#about-this-project)
     - [Initial Commit](#initial-commit)
     - [License](#license)
+- [About The Wiki](#about-the-wiki)
+- [Contributing](#contributing)
 
 <!-- /MarkdownTOC -->
 
------
+---
 
 # Files List
 
-- [`LICENSE`](./src/LICENSE) --- MIT License
+- [`LICENSE`](./src/LICENSE) — MIT License
 - [`/src/`](./src/) PBasmUI source files:
-    + [`PBasmUI.pb`](./src/PBasmUI.pb) --- main PBasmUI source file
-    + [`Macro.pbi`](./src/Macro.pbi) --- PBasmUI include file
-    + [`pb5.ico`](./src/pb5.ico) --- PBasmUI icon
-    + [`PBasmUI.txt`](./src/PBasmUI.txt) --- original changelog
+    + [`PBasmUI.pb`](./src/PBasmUI.pb) — main PBasmUI source file
+    + [`Macro.pbi`](./src/Macro.pbi) — PBasmUI include file
+    + [`pb5.ico`](./src/pb5.ico) — PBasmUI icon
+    + [`PBasmUI.txt`](./src/PBasmUI.txt) — original changelog
+- [`CONTRIBUTING.md`](./src/CONTRIBUTING.md) — contribution guidelines
 
 
 # About This Project
@@ -39,7 +42,7 @@ I wanted to tweak Horst's __PBasmUI__ to my personal needs, so I contacted him a
 
 ## Initial Commit 
 
-This repository takes off from Horst's original source files from __PBasmUI v3.21__ --- and this is the current state of the source files, which are unaltered so far! As I'll manage to implement the desired tweaks and new features, I'll be pushing them to the repo.
+This repository takes off from Horst's original source files from __PBasmUI v3.21__ — and this is the current state of the source files, which are unaltered so far! As I'll manage to implement the desired tweaks and new features, I'll be pushing them to the repo.
 
 Horst and I had quite a few email exchanges on the possible features enhancements and changes to implement in __PBasmUI__, and how we could go about them. Having the code accessible on GitHub will now allow us to carry on the exchange through live code examples, and experiment with branches.
 
@@ -47,7 +50,9 @@ It's too early to predict if this project will become an independent offshot of 
 
 ## License
 
-Having been granted permission by the author to reuse the original code without restrictions, I'm publishing this project under the terms of the MIT License --- as this will grant that Horst's name will always be mentioned:
+- [`LICENSE`](./src/LICENSE)
+
+Having been granted permission by the author to reuse the original code without restrictions, I'm publishing this project under the terms of the MIT License — as this will grant that Horst's name will always be mentioned:
 
     MIT License
 
@@ -74,6 +79,21 @@ Having been granted permission by the author to reuse the original code without 
 
 These terms do no affect the original files found on Horst's website.
 
+# About The Wiki
+
+- [PBasmUI Wiki][Wiki]
+
+This project has also a [Wiki] for organizing useful information on topics that are of interest in the development of PBasmUI (eg: PureBASIC compiler settings and options, tokens and env vars passed by the IDE to Add-In tools, etc.) 
+
+The Wiki is editbale by any GitHub user, so feel free to add contents, links, or make corrections.
+
+# Contributing
+
+Contributions are welcome. Read the contribution guidelines:
+
+- [`CONTRIBUTING.md`](./src/CONTRIBUTING.md)
 
 
 
+
+[Wiki]: https://github.com/tajmone/PBasmUI/wiki "Visit the PBasmUI Wiki ..."
