@@ -1,0 +1,179 @@
+# ******************************************************************************
+# *                                                                            *
+# *                                  PBasmUI                                   *
+# *                                                                            *
+# *                     https://github.com/tajmone/PBasmUI                     *
+# *                                                                            *
+# ******************************************************************************
+
+# Set Git's default behaviour to text-files autodetection, in case users don't
+# have `core.autocrlf` set:
+
+* text=auto
+
+# ==============================================================================
+#                    Text Files (EOL Normalization Settings)                    
+# ==============================================================================
+# Explicitly declare all files that are text and tell Git how to handle EOLs:
+
+## =================
+## SOURCE CODE FILES
+## =================
+
+
+## PureBASIC
+## ---------
+*.pb       text
+*.pbi      text
+*.pbp      text
+*.pbf      text
+*.cfg      text
+
+## ASM (Fasm/Yasm)
+## ---------------
+*.ASM      text
+*.INC      text
+*.asm      text
+*.inc      text
+
+## Win Resource Files
+## ------------------
+*.rc       text eol=crlf
+
+## Shell scripts
+## -------------
+*.bat      text eol=crlf
+*.com      text eol=crlf
+*.sh       text eol=lf
+*.ps1      text eol=crlf
+
+## ==================
+## MISC. DATA FORMATS
+## ==================
+*.json     text
+*.xml      text
+*.xhtml    text
+*.yaml     text
+*.yml      text
+
+## =================
+## WEB-RELATED FILES
+## =================
+*.htm      text
+*.html     text
+*.css      text
+*.js       text
+
+## ===================
+## DOCUMENTATION FILES
+## ===================
+AUTHORS      text
+CHANGELOG    text
+CHANGES      text
+CONTRIBUTING text
+COPYING      text
+copyright    text
+*COPYRIGHT*  text
+INSTALL      text
+license      text
+LICENSE      text
+UNLICENSE    text
+NEWS         text
+readme       text
+*README*     text
+TODO         text
+
+## ===================
+## CONFIGURATION FILES
+## ===================
+*.cnf          text
+*.conf         text
+*.config       text
+*.ini          text
+*.prefs        text
+.gitattributes text
+.gitconfig     text
+.gitignore     text
+
+## ===============
+## PLAIN-TEXT DOCS 
+## ===============
+*.adoc        text
+*.asciidoc    text
+*.markdown    text
+*.md          text
+*.txt         text
+
+# ==============================================================================
+#                                  Binary Files                                 
+# ==============================================================================
+# Explicitly declare all files that are binary and shouldn't be modified by Git:
+
+## =================
+## COMPILERS' OUTPUT
+## =================
+
+## Executables
+## -----------
+*.exe   binary
+*.app   binary
+
+## Shared/Dynamic libraries
+## ------------------------
+*.a     binary
+*.dll   binary
+*.dylib binary
+*.lib   binary
+*.so    binary
+
+
+## Object files
+## ------------
+*.slo   binary
+*.lo    binary
+*.o     binary
+*.obj   binary
+
+
+## ========
+## ARCHIVES
+## ========
+*.7z    binary
+*.gz    binary
+*.jar   binary
+*.rar   binary
+*.tar   binary
+*.zip   binary
+
+
+## ========
+## GRAPHICS
+## ========
+*.bmp   binary
+*.gif   binary
+*.ico   binary
+*.jpg   binary
+*.jpeg  binary
+*.pdf   binary
+*.png   binary
+*.psd   binary
+*.svg   binary
+*.svgz  binary
+*.tif   binary
+*.tiff  binary
+
+# ==============================================================================
+#                                GitHub Linguist                                
+# ==============================================================================
+#  -- https://github.com/github/linguist
+#
+# Manually define/override some extension so that GitHub's Linguist library can
+# 1) Correctly gather statistics on source files, and
+# 2) Use proper syntax highlighting on GitHub's WebUI.
+
+## PureBASIC project files
+## ---------------------------
+*.cfg    linguist-generated=true
+*.pbf    linguist-language=PureBasic
+*.pbp    linguist-generated=true
+*.pbp    linguist-language=XML
