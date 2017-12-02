@@ -18,6 +18,12 @@
 *.pbi.cfg
 project.cfg
 
+
+## PureBASIC Project Files
+## -----------------------
+*.pbp
+
+
 ## Binary Files
 ## ------------
 *.exe

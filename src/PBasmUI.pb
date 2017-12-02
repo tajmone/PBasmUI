@@ -1,7 +1,44 @@
-; ---------------------------------------------------------------
-;-  PB ASM UI (c) 2005-2017, horst.schaeffer@gmx.net
-; ---------------------------------------------------------------
-#title = "PB Assembler UI  3.21"  
+; ------------------------------------------------------------------------------
+; "PBasmUI.pb" v3.22-rc01 (release candidate 1) | 2017/02/12
+;{------------------------------------------------------------------------------
+; PBasmUI -- Tristano's version:
+;    https://github.com/tajmone/PBasmUI
+;
+; Based on the original code by Horst Schaeffer:
+;    http://horstmuc.de/pb.htm
+; ------------------------------------------------------------------------------
+; Released under MIT License (see "LICENSE" file):
+;
+; Copyright (c) 2004-2017, Horst Schaeffer -- http://horstmuc.de/pb/
+; Copyright (c) 2017 Tristano Ajmone -- https://github.com/tajmone/PBasmUI
+;}------------------------------------------------------------------------------
+
+; Currently working on:
+; - [x] Compile and log to source-file folder path.
+; - [x] Fix compiler switch #ASMMode error: "/INLINEASM: Unknown switch"
+;       Removed #ASMMod checkbox and all references to it (see CHANGELOG).
+
+; ==============================================================================
+;                                   TODOs LIST                                  
+; ==============================================================================
+; Wishist of changes and new features to implement.
+; - [ ] Rename "PureBasic.asm" to "<filename>.asm"
+; - [ ] Rename "Error.out" to "PBasmUI.log" or "<filename>.log".
+;       After all, this file is now alway written in the source file folder (after
+;       I've changed the compiler working folder to that of the source file), and
+;       the user might wish to keep it. It's not really an error file since it's
+;       written even on successful compilation; it's just a log.
+; - [ ] Unchecking the "Product > Executable" checkbox fails to produce an Asm file
+;       (compiler invoked with "/CHECK" switch). Sometimes a user might wish to
+;       output the Asm file without creating the exe file (ie: it would overwrite
+;       a pre-existing compiled exe); this could be done by passing "/EXE" with some
+;       temporary file name  -- either in the source-file folder, and then delete it, or
+;       by compiling it to a temporary system folder. To implement the latter, it
+;       would be best to always compile to a temp folder, and then move the required
+;       files to the source-file folder.
+;
+
+#title = "PB Assembler UI  3.22-rc01"  
 #tempfile = 1
 #configfile = 2
 
@@ -33,7 +70,7 @@ Enumeration 1 ; gadgets
   
   #produceEXE : #EXEfile : #ExeBrowse
   #WindowsMode : #ConsoleMode : #DLLMode 
-  #XPMode : #ASMMode : #OnErrMode ; #VersionInfo
+  #XPMode : #OnErrMode ; #ASMMode : #VersionInfo
   #UniMode : #ThreadMode
   #AdminMode : #UserMode
   #DebugMode : #CPUmode
@@ -90,8 +127,8 @@ Else: End: EndIf
     OptionGadget(#ConsoleMode,#x1,75,#w1,22,"Console")
     OptionGadget(#DLLMode,#x1,95,#w1,22,"Shared DLL")
     CheckBoxGadget(#XPMode,#x2,55,#w2,22,"XP+ theme support")
-    CheckBoxGadget(#ASMMode,#x2,75,#w2,22,"Inline ASM support")
-    CheckBoxGadget(#OnErrMode,#x2,95,#w2,22,"OnError lines support")
+    ;     CheckBoxGadget(#ASMMode,#x2,75,#w2,22,"Inline ASM support") ; !!! tajmone: REMOVED #ASMMode Checkbox !!!
+    CheckBoxGadget(#OnErrMode,#x2,75,#w2,22,"OnError lines support") 
     ; CheckBoxGadget(#VersionInfo,#x2,115,#w2,22,"Version info")
     
     CheckBoxGadget(#UniMode,#x3,55,#w3,22,"Unicode executable")
@@ -249,7 +286,7 @@ Procedure GetPBconfigData()
       SetGadgetState(#withResource,1) 
     EndIf 
     
-    If GetAssignment("EnableAsm")  :     SetGadgetState(#ASMMode,1) : EndIf 
+;     If GetAssignment("EnableAsm")  :     SetGadgetState(#ASMMode,1) : EndIf ; !!! REMOVED by tajmone !!!
     If GetAssignment("EnableXP")  :      SetGadgetState(#XPMode,1) : EndIf 
     If GetAssignment("EnableUnicode") :  SetGadgetState(#UniMode,1) : EndIf 
     If GetAssignment("EnableThread") :   SetGadgetState(#ThreadMode,1) : EndIf 
@@ -288,7 +325,7 @@ EndProcedure
 #Errorfile = "Error.out"
 
 Procedure RunCompiler()
-  SetCurrentDirectory(GetPathPart(Compiler)) 
+  SetCurrentDirectory(GetPathPart(PBsource)) ; !!! CHANGED by tajmone, was: GetPathPart(Compiler) !!!
   exeFile.s = GetGadgetText(#EXEfile)
   IconFile.s = GetGadgetText(#IconFile)
   ResourceFile.s = GetGadgetText(#ResourceFile)
@@ -311,7 +348,7 @@ Procedure RunCompiler()
   
   Parameters + " " + StringField(#CPUoptions,GetGadgetState(#CPUmode)+1,",") 
   If GetGadgetState(#XPMode) :     Parameters + " /XP" : EndIf 
-  If GetGadgetState(#ASMMode) :    Parameters + " /INLINEASM" : EndIf 
+;   If GetGadgetState(#ASMMode) :    Parameters + " /INLINEASM" : EndIf ; !!! REMOVED by tajmone !!!
   If GetGadgetState(#OnErrMode) :  Parameters + " /LINENUMBERING" : EndIf 
   ; If GetGadgetState(#VersionInfo): Parameters + " /INCLUDEVERSIONINFO" : EndIf 
   If GetGadgetState(#UniMode) :    Parameters + " /UNICODE" : EndIf 
@@ -326,11 +363,12 @@ Procedure RunCompiler()
   If s : Parameters + " " + s : EndIf 
   
   Parameters + GetConstants() 
+;   MessageRequester("DEBUG INFO", "Parameters: "+ Parameters) ; DBG Parameters
   
   DeleteFile(#LinkerFile)
   DeleteFile(#ASMoutFile)
   DeleteFile(#ErrorFile)
-
+  
   msg.s = "" : ReportFile.s = "" : #buffersize = 40*#KB
   *Buffer = AllocateMemory(#buffersize)
   If *Buffer 
@@ -432,24 +470,30 @@ Repeat
 Until done
 End
 
-; IDE Options = PureBasic 5.61 (Windows - x86)
-; CursorPosition = 3
-; Folding = --
-; EnableXP
-; UseIcon = pb5.ico
-; Executable = PBasmUI.exe
-; CommandLine = PBasmUI.pb
-; CompileSourceDirectory
-; IncludeVersionInfo
-; VersionField0 = 3,2,0,0
-; VersionField1 = 3.2,0,0
-; VersionField2 = Horst Schaeffer
-; VersionField3 = PBasmUI
-; VersionField4 = 3.2,  %yyyy-%mm-%dd
-; VersionField5 = 3.2
-; VersionField7 = PBasmUI
-; VersionField8 = PBasmUI.exe
-; VersionField9 = 2004-%yyyy, Horst Schaeffer
-; VersionField15 = VOS_DOS_WINDOWS32
-; VersionField16 = VFT_APP
-; EnableUnicode
+; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+;                                   CAHNGELOG                                   
+;{//////////////////////////////////////////////////////////////////////////////
+; List of changes introduced by Tristano Ajmone.
+; Original code base: PBasmUI v3.21 (2017/11/29) by Horst Schaeffer:
+;
+;       http://horstmuc.de/pb/pbasmui.zip
+;
+; ------------------------------------------------------------------------------
+;                               v3.22 (2017/12/02)                              
+; ------------------------------------------------------------------------------
+; -- Now PBasmUI outputs the ".exe", the ".asm " and "Error.out" files to same
+;    folder as source file.
+; -- Removed all references to "Inline ASM support" checkbox (#ASMMode):
+;    this UI option was rasing an "/INLINEASM: Unknown switch" error.
+;    PBasmUI was erroneously mistaking the IDE compiler option "Enable inline ASM
+;    support" for a pbcompiler switch --- this option actually refers to enabling
+;    the inline ASM parser in PuerBasic's IDE syntax highlighting:
+;
+;       http://www.purebasic.com/documentation/reference/ide_compiler.html
+;
+;    PureBASIC changelog page doesn't mention an /INLINEASM compiler switch being
+;    deprecated or added:
+;
+;       https://www.purebasic.com/documentation/mainguide/history.html
+;
+;}//////////////////////////////////////////////////////////////////////////////
