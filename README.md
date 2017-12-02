@@ -17,6 +17,7 @@ Maintained by Tristano Ajmone, with the kind permission of Horst Schaeffer.
 - [Files List](#files-list)
 - [About This Project](#about-this-project)
     - [Initial Commit](#initial-commit)
+    - [Upstreams Archive](#upstreams-archive)
     - [License](#license)
 - [About The Wiki](#about-the-wiki)
 - [Contributing](#contributing)
@@ -27,14 +28,14 @@ Maintained by Tristano Ajmone, with the kind permission of Horst Schaeffer.
 
 # Files List
 
+- [`CONTRIBUTING.md`](./src/CONTRIBUTING.md) — contribution guidelines
 - [`LICENSE`](./src/LICENSE) — MIT License
 - [`/src/`](./src/) PBasmUI source files:
     + [`PBasmUI.pb`](./src/PBasmUI.pb) — main PBasmUI source file
     + [`Macro.pbi`](./src/Macro.pbi) — PBasmUI include file
     + [`pb5.ico`](./src/pb5.ico) — PBasmUI icon
     + [`PBasmUI.txt`](./src/PBasmUI.txt) — original changelog
-- [`CONTRIBUTING.md`](./src/CONTRIBUTING.md) — contribution guidelines
-
+- [`/upstreams/`](./upstreams/) — archived copies of Horst's releases
 
 # About This Project
 
@@ -47,6 +48,15 @@ This repository takes off from Horst's original source files from __PBasmUI v3.2
 Horst and I had quite a few email exchanges on the possible features enhancements and changes to implement in __PBasmUI__, and how we could go about them. Having the code accessible on GitHub will now allow us to carry on the exchange through live code examples, and experiment with branches.
 
 It's too early to predict if this project will become an independent offshot of __PBasmUI__, or if might instead become the furnace and testground of its  future official releases. Right now, I'm just publishing the original source code that can be found at Horsts' website, so I can start implementing, testing and sharing ideas.
+
+## Upstreams Archive
+
+The `upstreams` folder is for archiving the sources of Horst's releases of __PBasmUI__ (ie: the _upstream_ version). This will simplify the task of integrating changes from newer versions of Horst's __PBasmUI__ into this project (_downstream_), by diffing the source files of the latest release with those of the release this project was built on (ie: v3.21), or of the latest release whose changes have been integrated.
+
+- [`/upstreams/`](./upstreams/)
+    - [`/3-21/`](./upstreams/3-21/)
+    - [`History.txt`](./upstreams/History.txt)
+
 
 ## License
 
