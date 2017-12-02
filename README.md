@@ -18,6 +18,7 @@ Maintained by Tristano Ajmone, with the kind permission of Horst Schaeffer.
 - [About This Project](#about-this-project)
     - [Initial Commit](#initial-commit)
     - [Upstreams Archive](#upstreams-archive)
+    - [Roadmap](#roadmap)
     - [License](#license)
 - [About The Wiki](#about-the-wiki)
 - [Contributing](#contributing)
@@ -56,6 +57,30 @@ The `upstreams` folder is for archiving the sources of Horst's releases of __PBa
 - [`/upstreams/`](./upstreams/)
     - [`/3-21/`](./upstreams/3-21/)
     - [`History.txt`](./upstreams/History.txt)
+
+
+## Roadmap
+
+The full Roadmap can be viewed in the repository project board:
+
+- https://github.com/tajmone/PBasmUI/projects/1
+
+Here is a task-list resume of the roadmap status:
+
+- [ ] Direct compiler output and logs to source-file folder ([_link_][card1])
+- [ ] Add additional compilers support ([_link_][card2])
+- [ ] Add source preprocessing feature ([_link_][card3])
+- [ ] Implement compilation with Version Information ([_link_][card4])
+
+<!-- -->
+
+[card1]: https://github.com/tajmone/PBasmUI/projects/1#card-5965436 "View project board card"
+
+[card2]: https://github.com/tajmone/PBasmUI/projects/1#card-5965446  "View project board card"
+
+[card3]: https://github.com/tajmone/PBasmUI/projects/1#card-5965451 "View project board card"
+
+[card4]: https://github.com/tajmone/PBasmUI/projects/1#card-5965444 "View project board card"
 
 
 ## License
