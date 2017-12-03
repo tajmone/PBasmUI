@@ -1,5 +1,5 @@
 ; ------------------------------------------------------------------------------
-; "PBasmUI.pb" v3.22-rc02 (release candidate 2) | 2017/03/12
+; "PBasmUI.pb" v3.22-rc03 (release candidate 3) | 2017/03/12
 ;{------------------------------------------------------------------------------
 ; PBasmUI -- Tristano's version:
 ;    https://github.com/tajmone/PBasmUI
@@ -14,23 +14,32 @@
 ;}------------------------------------------------------------------------------
 
 ; Currently working on:
+; - [x] FIX: Compiler execution causes a CDM window to open and close in background.
+;       Added the #PB_Program_Hide flag to RunProgram().
 ; - [x] "Re-asm source file" fails to find source.
 ;       Fixed: If /REASM option is set, don't pass "*.pb" source file in params,
 ;       but pass "/REASM PureBasic.asm"
 ; - [x] Compile and log to source-file folder path.
 ; - [x] Fix compiler switch #ASMMode error: "/INLINEASM: Unknown switch"
 ;       Removed #ASMMod checkbox and all references to it (see CHANGELOG).
+; - [x] Tweak Gadget Events behavior:
+;       -- Checking "Source > /REASM" option sets to checked and disables the
+;          "Product > Executable" checkbox, and disables the exe path string gadget
+;          too, because With this option creating an exe is mandatory,
+;          it also enables "Start program" checkbox.
+;       -- Checking  "Source > PB File" re-enables "Product > Executable" checkbox
+;          and the exe path string gadget.
 ; ==============================================================================
 ;                                   WORK NOTES                                  
-; ==============================================================================
+;{==============================================================================
 ; -- Unicode executable option "/UNICODE" is deprecated for PB >= 5.50
 ;    but the compiler doesn't seem to complain about its presence when checked.
 ;    Better keep it for backward comptability with older compilers, especially
 ;    when support for additional compilers will be added.
-
-; ==============================================================================
+;
+;}==============================================================================
 ;                                   TODOs LIST                                  
-; ==============================================================================
+;{==============================================================================
 ; Wishist of changes and new features to implement.
 ; - [ ] Rename "PureBasic.asm" to "<filename>.asm" --- In order to do that, all
 ;       compile operations should be carried out in the system TEMP folder:
@@ -56,9 +65,9 @@
 ;       by compiling it to a temporary system folder. To implement the latter, it
 ;       would be best to always compile to a temp folder, and then move the required
 ;       files to the source-file folder.
-;
+;}------------------------------------------------------------------------------
 
-#title = "PB Assembler UI  3.22-rc02"  
+#title = "PB Assembler UI  3.22-rc03"  
 #tempfile = 1
 #configfile = 2
 
@@ -76,6 +85,11 @@ CompilerEndIf
 ; (but not if "/REASM current ASM file" is selected!)
 ; NOTE: The returned path to %TEMP% will never contain spaces, so no need to wrap in DQuotes! 
 Global DummyExe.s = GetEnvironmentVariable("TEMP") + "\PureBasic.exe"
+
+; reAsmExeDefault -- default /REASM executable filename if exeFile is empty
+Global reAsmExeDefault.s = GetPathPart(PBsource) +
+                           GetFilePart(PBsource, #PB_FileSystem_NoExtension) + "_reAsm.exe"
+
 
 If PBsource = "" Or Compiler = ""
   MessageBox_(0,"For IDE integration see PBasmUI.txt","Error",0) : End 
@@ -129,7 +143,8 @@ EndProcedure
 If OpenWindow(0,50,200,#width,#height,#title,#flags) 
 Else: End: EndIf 
   SetGadgetFont(#PB_Default,GuiFont)
-  #xInput = 110 
+  #xInput = 110
+  ;- Gadgets Create
   Container(10,140,"Source")
     OptionGadget(#compileSource,10,25,100,22,"PB file")
     OptionGadget(#REASM,10,50,200,22,"/REASM current ASM file")
@@ -362,51 +377,48 @@ Procedure RunCompiler()
   Parameters.s = "" 
   
   ; !!! CHANGED by tajmone !!!
-  If GetGadgetState(#REASM) 
-    Parameters + " /REASM " + #q2$+ #ASMfile +#q2$          ; <= "/REASM PureBasic.asm"
+  If GetGadgetState(#REASM)
+    Parameters + " /REASM " + #q2$+ #ASMfile +#q2$  ; <= "/REASM PureBasic.asm"
+    If exeFile = ""
+      exeFile = reAsmExeDefault                     ; <= "<filename>_reAsm.exe"
+      SetGadgetText(#EXEfile, exeFile) ; update exe-path string gadget
+    EndIf    
     Parameters + " /EXE " + #q2$+exeFile+#q2$
-    ; TODO: Even if "Product > Executable" is unckecked, the exe filename from that gadget
-    ;        will be used (ie: last exe named used). I could add here a check, and if it's
-    ;        unchecked either resort to "<filename>.exe" or "<filename>_reAsmed.exe", or
-    ;        just warn the user about this. Else, I could implement that when the user
-    ;        has chosen "/REASM" option, "Product > Executable" will be automatically checked
-    ;        and blocked.
   Else
     DeleteFile(#ASMfile)
     Parameters + " /COMMENTED "
     
-    ; !!! CHANGED by tajmone: The following If is no longer needed, because if we
-    ;     got here is because GetGadgetState(#REASM) is false, therefore GetGadgetState(#compileSource)
-    ;     must be true:
-    ;     If GetGadgetState(#compileSource) : Parameters + #q2$+PBsource+#q2$ : EndIf 
+    ; !!! CHANGED by tajmone: The following "If" is no longer needed, because if we
+    ;     got here is because GetGadgetState(#REASM) has proven false, therefore
+    ;     we already know that GetGadgetState(#compileSource) must be true:
+    ;       If GetGadgetState(#compileSource) : Parameters + #q2$+PBsource+#q2$ : EndIf 
     Parameters + #q2$+PBsource+#q2$
-    ; !!! CHANGED by tajmone: The /CHECK switch prevented creating the ".asm" file!
     If GetGadgetState(#produceEXE)
       Parameters + " /EXE " + #q2$+exeFile+#q2$ 
     Else
+      ; !!! CHANGED by tajmone: The /CHECK switch prevented creating the "PureBasic.asm" file !!!
       ; Redirect exe output to %TEMP%\PureBasic.exe instad:
       Parameters + " /EXE " + DummyExe
     EndIf   
     
   EndIf 
   
-
-  If GetGadgetState(#withIcon) :     Parameters + " /ICON " + #q2$+IconFile+#q2$ : EndIf 
-  If GetGadgetState(#withResource) : Parameters + " /RESOURCE " + #q2$+ResourceFile+#q2$ : EndIf 
+  If GetGadgetState(#withIcon)      : Parameters + " /ICON " + #q2$+IconFile+#q2$ : EndIf 
+  If GetGadgetState(#withResource)  : Parameters + " /RESOURCE " + #q2$+ResourceFile+#q2$ : EndIf 
     
-  If GetGadgetState(#ConsoleMode): Parameters + " /CONSOLE"
-  ElseIf GetGadgetState(#DLLMode): Parameters + " /DLL"
+  If GetGadgetState(#ConsoleMode)   : Parameters + " /CONSOLE"
+  ElseIf GetGadgetState(#DLLMode)   : Parameters + " /DLL"
   EndIf 
   
   Parameters + " " + StringField(#CPUoptions,GetGadgetState(#CPUmode)+1,",") 
-  If GetGadgetState(#XPMode) :     Parameters + " /XP" : EndIf 
-;   If GetGadgetState(#ASMMode) :    Parameters + " /INLINEASM" : EndIf ; !!! REMOVED by tajmone !!!
-  If GetGadgetState(#OnErrMode) :  Parameters + " /LINENUMBERING" : EndIf 
-  ; If GetGadgetState(#VersionInfo): Parameters + " /INCLUDEVERSIONINFO" : EndIf 
-  If GetGadgetState(#UniMode) :    Parameters + " /UNICODE" : EndIf 
-  If GetGadgetState(#ThreadMode) : Parameters + " /THREAD" : EndIf 
-  If GetGadgetState(#AdminMode)  : Parameters + " /ADMINISTRATOR" : EndIf 
-  If GetGadgetState(#UserMode)   : Parameters + " /USER" : EndIf
+  If GetGadgetState(#XPMode)        : Parameters + " /XP" : EndIf 
+  ; If GetGadgetState(#ASMMode)     : Parameters + " /INLINEASM" : EndIf ; !!! REMOVED by tajmone !!!
+  If GetGadgetState(#OnErrMode)     : Parameters + " /LINENUMBERING" : EndIf 
+  ; If GetGadgetState(#VersionInfo) : Parameters + " /INCLUDEVERSIONINFO" : EndIf 
+  If GetGadgetState(#UniMode)       : Parameters + " /UNICODE" : EndIf 
+  If GetGadgetState(#ThreadMode)    : Parameters + " /THREAD" : EndIf 
+  If GetGadgetState(#AdminMode)     : Parameters + " /ADMINISTRATOR" : EndIf 
+  If GetGadgetState(#UserMode)      : Parameters + " /USER" : EndIf
   
 
   s.s = Trim(GetGadgetText(#Switches))
@@ -422,7 +434,7 @@ Procedure RunCompiler()
   msg.s = "" : ReportFile.s = "" : #buffersize = 40*#KB
   *Buffer = AllocateMemory(#buffersize)
   If *Buffer 
-    Process = RunProgram(Compiler,Parameters,"",#PB_Program_Open|#PB_Program_Read) ; #PB_Program_Wait
+    Process = RunProgram(Compiler,Parameters,"",#PB_Program_Open|#PB_Program_Read|#PB_Program_Hide) ; #PB_Program_Wait
     If Process 
       ReadSize = ReadProgramData(Process,*Buffer,#buffersize)
       CloseProgram(Process)
@@ -503,15 +515,25 @@ GetPBconfigData()
 
 Repeat
   Event = WaitWindowEvent()
+  ;- Gadgets Events
   If Event = #PB_Event_Gadget
     Select EventGadget()
-    Case #produceEXE
-         DisableGadget(#RunExe,Bool(GetGadgetState(#produceEXE))!1)
-    Case #IconBrowse : GetIconFile()
-    Case #ExeBrowse  : GetExePath()
-    Case #RunButton  : done = RunCompiler() & GetGadgetState(#autoExit)
-         DisableGadget(#REASM,Bool(FileSize(#ASMfile) <= 0)) 
-    Case #ExitButton : done = #True
+      Case #produceEXE
+        DisableGadget(#RunExe,Bool(GetGadgetState(#produceEXE))!1)
+        ; !!! CHANGED tajmone: Also enable/disable Exe path string gadget !!!
+        DisableGadget(#EXEfile,Bool(GetGadgetState(#produceEXE))!1)
+      Case #compileSource ; !!! ADDED tajmone: "Source > PB File" OptionGadget !!!
+        DisableGadget(#produceEXE, 0) ; Enable "Product > Executable" checkbox
+      Case #REASM ; !!! ADDED tajmone: "Source > /REASM current ASM file" !!!
+        SetGadgetState(#produceEXE, #PB_Checkbox_Checked)        
+        DisableGadget(#produceEXE, 1) ; Disable "Product > Executable" checkbox (exe is now mandatory!)
+        DisableGadget(#EXEfile,0)     ; Enable Exe path string gadget
+        DisableGadget(#RunExe,0)      ; Enable "Start Program" checkbox
+      Case #IconBrowse : GetIconFile()
+      Case #ExeBrowse  : GetExePath()
+      Case #RunButton  : done = RunCompiler() & GetGadgetState(#autoExit)
+        DisableGadget(#REASM,Bool(FileSize(#ASMfile) <= 0)) 
+      Case #ExitButton : done = #True
     Case #Eclose : ErrorFrameMode(#False)
     Default : OptionDependencies()
     EndSelect 
@@ -550,5 +572,22 @@ End
 ;    deprecated or added:
 ;
 ;       https://www.purebasic.com/documentation/mainguide/history.html
-;
+; -- Tweaked Gadget Events behavior:
+;    -- Checking "Source > /REASM" option sets to checked and disables the
+;       "Product > Executable" checkbox, and disables the exe path string gadget
+;       too, because With this option creating an exe is mandatory,
+;       it also enables "Start program" checkbox.
+;    -- Checking  "Source > PB File" re-enables "Product > Executable" checkbox
+;       and the exe path string gadget.
+; -- Before invoking the compiler with /REASM option, if exeFile string is empty
+;    it will set it to "<filename>_reAsm.exe" (new Global var reAsmExeDefault.s).
+;    While still allowing user to set a custom exe path/filename in the "Product >
+;    Executable" string gadget, it also ensure that when this is missing it will
+;    output an exe that will not overwrite the default compiled file, and that is
+;    clearly reckognizable as being the reAsmed exe (a precaution in case the
+;    user accidentally deleted the path string).
+; -- FIX: Added #PB_Program_Hide flag to the RunProgam() that invokes PB compiler,
+;    so that it launches in invisible mode. This fixes the flash of the CMD windows
+;    that was opnening and closing in the background when clicking the "Run" button. 
+;    
 ;}//////////////////////////////////////////////////////////////////////////////
