@@ -1,5 +1,5 @@
 ; ------------------------------------------------------------------------------
-; "PBasmUI.pb" v3.22-rc01 (release candidate 1) | 2017/02/12
+; "PBasmUI.pb" v3.22-rc02 (release candidate 2) | 2017/03/12
 ;{------------------------------------------------------------------------------
 ; PBasmUI -- Tristano's version:
 ;    https://github.com/tajmone/PBasmUI
@@ -14,15 +14,35 @@
 ;}------------------------------------------------------------------------------
 
 ; Currently working on:
+; - [x] "Re-asm source file" fails to find source.
+;       Fixed: If /REASM option is set, don't pass "*.pb" source file in params,
+;       but pass "/REASM PureBasic.asm"
 ; - [x] Compile and log to source-file folder path.
 ; - [x] Fix compiler switch #ASMMode error: "/INLINEASM: Unknown switch"
 ;       Removed #ASMMod checkbox and all references to it (see CHANGELOG).
+; ==============================================================================
+;                                   WORK NOTES                                  
+; ==============================================================================
+; -- Unicode executable option "/UNICODE" is deprecated for PB >= 5.50
+;    but the compiler doesn't seem to complain about its presence when checked.
+;    Better keep it for backward comptability with older compilers, especially
+;    when support for additional compilers will be added.
 
 ; ==============================================================================
 ;                                   TODOs LIST                                  
 ; ==============================================================================
 ; Wishist of changes and new features to implement.
-; - [ ] Rename "PureBasic.asm" to "<filename>.asm"
+; - [ ] Rename "PureBasic.asm" to "<filename>.asm" --- In order to do that, all
+;       compile operations should be carried out in the system TEMP folder:
+;       -- When creating asm file, the "PureBasic.asm" shall be copied renamed to
+;          "<filename>.asm" in the source file folder. This will also allow to
+;          avoid producing the exe file when the corresponding checkbox is unchecked
+;          (currently, there seems no way to produce only the .asm file, the compiler
+;          will always produce the exe file too; using the "/CHECK" option will
+;          prevent creating the .asm file!)
+;       -- When reAsming the current source, the correct "<filename>.asm" will be
+;          copied to the TEMP folder, reAsmed, and the final exe copied to the
+;          source file folder.
 ; - [ ] Rename "Error.out" to "PBasmUI.log" or "<filename>.log".
 ;       After all, this file is now alway written in the source file folder (after
 ;       I've changed the compiler working folder to that of the source file), and
@@ -38,7 +58,7 @@
 ;       files to the source-file folder.
 ;
 
-#title = "PB Assembler UI  3.22-rc01"  
+#title = "PB Assembler UI  3.22-rc02"  
 #tempfile = 1
 #configfile = 2
 
@@ -51,6 +71,11 @@ CompilerIf #PB_Compiler_Debugger
 CompilerElse 
   Compiler = GetEnvironmentVariable("PB_TOOL_Compiler") 
 CompilerEndIf 
+
+; DummyExe redirects compiler exe output to TEMP folder when "Product > Executable" is unchecked
+; (but not if "/REASM current ASM file" is selected!)
+; NOTE: The returned path to %TEMP% will never contain spaces, so no need to wrap in DQuotes! 
+Global DummyExe.s = GetEnvironmentVariable("TEMP") + "\PureBasic.exe"
 
 If PBsource = "" Or Compiler = ""
   MessageBox_(0,"For IDE integration see PBasmUI.txt","Error",0) : End 
@@ -335,10 +360,37 @@ Procedure RunCompiler()
   
   SetCursor_(WaitCursor)
   Parameters.s = "" 
-  If GetGadgetState(#compileSource) : Parameters + #q2$+PBsource+#q2$ : EndIf 
-  If GetGadgetState(#produceEXE) :   Parameters + " /EXE " + #q2$+exeFile+#q2$ 
-  Else                            :  Parameters + " /CHECK "
+  
+  ; !!! CHANGED by tajmone !!!
+  If GetGadgetState(#REASM) 
+    Parameters + " /REASM " + #q2$+ #ASMfile +#q2$          ; <= "/REASM PureBasic.asm"
+    Parameters + " /EXE " + #q2$+exeFile+#q2$
+    ; TODO: Even if "Product > Executable" is unckecked, the exe filename from that gadget
+    ;        will be used (ie: last exe named used). I could add here a check, and if it's
+    ;        unchecked either resort to "<filename>.exe" or "<filename>_reAsmed.exe", or
+    ;        just warn the user about this. Else, I could implement that when the user
+    ;        has chosen "/REASM" option, "Product > Executable" will be automatically checked
+    ;        and blocked.
+  Else
+    DeleteFile(#ASMfile)
+    Parameters + " /COMMENTED "
+    
+    ; !!! CHANGED by tajmone: The following If is no longer needed, because if we
+    ;     got here is because GetGadgetState(#REASM) is false, therefore GetGadgetState(#compileSource)
+    ;     must be true:
+    ;     If GetGadgetState(#compileSource) : Parameters + #q2$+PBsource+#q2$ : EndIf 
+    Parameters + #q2$+PBsource+#q2$
+    ; !!! CHANGED by tajmone: The /CHECK switch prevented creating the ".asm" file!
+    If GetGadgetState(#produceEXE)
+      Parameters + " /EXE " + #q2$+exeFile+#q2$ 
+    Else
+      ; Redirect exe output to %TEMP%\PureBasic.exe instad:
+      Parameters + " /EXE " + DummyExe
+    EndIf   
+    
   EndIf 
+  
+
   If GetGadgetState(#withIcon) :     Parameters + " /ICON " + #q2$+IconFile+#q2$ : EndIf 
   If GetGadgetState(#withResource) : Parameters + " /RESOURCE " + #q2$+ResourceFile+#q2$ : EndIf 
     
@@ -354,11 +406,9 @@ Procedure RunCompiler()
   If GetGadgetState(#UniMode) :    Parameters + " /UNICODE" : EndIf 
   If GetGadgetState(#ThreadMode) : Parameters + " /THREAD" : EndIf 
   If GetGadgetState(#AdminMode)  : Parameters + " /ADMINISTRATOR" : EndIf 
-  If GetGadgetState(#UserMode)   : Parameters + " /USER" : EndIf 
+  If GetGadgetState(#UserMode)   : Parameters + " /USER" : EndIf
   
-  If GetGadgetState(#REASM) :      Parameters + " /REASM" 
-  Else : DeleteFile(#ASMfile) :    Parameters + " /COMMENTED"
-  EndIf 
+
   s.s = Trim(GetGadgetText(#Switches))
   If s : Parameters + " " + s : EndIf 
   
@@ -479,10 +529,15 @@ End
 ;       http://horstmuc.de/pb/pbasmui.zip
 ;
 ; ------------------------------------------------------------------------------
-;                               v3.22 (2017/12/02)                              
+;                               v3.22 (2017/12/03)                              
 ; ------------------------------------------------------------------------------
 ; -- Now PBasmUI outputs the ".exe", the ".asm " and "Error.out" files to same
 ;    folder as source file.
+; -- When "Product > Executable" is unchecked, the executable file is created in
+;    Win TEMP folder ("%TEMP%\PureBasic.exe"). Previously this was handled by
+;    passing the "/CHECK" switch, but that prevented the "PureBasic.asm" file
+;    being created. There is no way to produce the "PureBasic.asm" file without
+;    the executable, so this solution seems the best one.
 ; -- Removed all references to "Inline ASM support" checkbox (#ASMMode):
 ;    this UI option was rasing an "/INLINEASM: Unknown switch" error.
 ;    PBasmUI was erroneously mistaking the IDE compiler option "Enable inline ASM
