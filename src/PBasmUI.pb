@@ -1,7 +1,7 @@
 ; ------------------------------------------------------------------------------
-; "PBasmUI.pb" v3.22-rc05 (release candidate n° 5) | 2017/12/05
+; "PBasmUI.pb" v3.22 (stable release) | 2017/12/05
 ;{------------------------------------------------------------------------------
-; PBasmUI -- Tristano's version:
+; PBasmUI -- Tristano Ajmone's fork:
 ;    https://github.com/tajmone/PBasmUI
 ;
 ; Based on the original code by Horst Schaeffer:
@@ -13,44 +13,6 @@
 ; Copyright (c) 2017 Tristano Ajmone -- https://github.com/tajmone/PBasmUI
 ;}------------------------------------------------------------------------------
 
-; Currently working on:
-; - [x] BUGFIX: With /REASM "Run program" fails to launch compiled exe.
-;       The problems was in this If block:
-;
-;           If GetGadgetState(#RunExe) And GetGadgetState(#produceEXE)
-;             RunProgram(exeFile,"",GetPathPart(exeFile),0)
-;           EndIf 
-;
-;       ... which failed with /REASM because #produceEXE would be disabled.
-;       Now changed to:
-;
-;           If GetGadgetState(#RunExe) And (GetGadgetState(#produceEXE) Or GetGadgetState(#REASM))
-;
-; - [x] My gadgets events tweaks: add call to OptionDependencies() to update other
-;       gadgets states.
-; - [x] Rename "Error.out" to "PBasmUI.log" or "<filename>.log".
-; - [x] FIX: Compiler execution causes a CDM window to open and close in background.
-;       Added the #PB_Program_Hide flag to RunProgram().
-; - [x] "Re-asm source file" fails to find source.
-;       Fixed: If /REASM option is set, don't pass "*.pb" source file in params,
-;       but pass "/REASM PureBasic.asm"
-; - [x] Compile and log to source-file folder path.
-; - [x] Fix compiler switch #ASMMode error: "/INLINEASM: Unknown switch"
-;       Removed #ASMMod checkbox and all references to it (see CHANGELOG).
-; - [x] Tweak Gadget Events behavior:
-;       -- Checking "Source > /REASM" option sets to checked and disables the
-;          "Product > Executable" checkbox, and disables the exe path string gadget
-;          too, because With this option creating an exe is mandatory,
-;          it also enables "Start program" checkbox.
-;       -- Checking  "Source > PB File" re-enables "Product > Executable" checkbox
-;          and the exe path string gadget.
-; - [x] FIX: Unchecking the "Product > Executable" checkbox fails to produce the
-;       Asm file (compiler invoked with "/CHECK" switch). Sometimes a user might
-;       wish to output the Asm file without creating an exe (ie: it would overwrite
-;       a pre-existing compiled exe).
-;       Fixed by passing to the "/EXE" switch the value of new DummyExe (Global
-;       string) which point to "%TEMP%\PureBasic.exe"; thus the exe is created
-;       in the system's temporary folder instead of the source file directory.
 ; ==============================================================================
 ;                                   WORK NOTES                                  
 ;{==============================================================================
@@ -119,7 +81,7 @@
 ;       is pressed, and before invoking the actual RunCompiler() procedure.
 ;}------------------------------------------------------------------------------
 
-#title = "PB Assembler UI  3.22-rc04"  
+#title = "PB Assembler UI  3.22 (tajmone fork)"  
 #tempfile = 1
 #configfile = 2
 
@@ -613,6 +575,8 @@ End
 ; ------------------------------------------------------------------------------
 ;                               v3.22 (2017/12/05)                              
 ; ------------------------------------------------------------------------------
+; -- Added "(tajmone fork)" to UI window title, to avoid confusion with Horst's
+;    original version PBasmUI (some users might keep both versions in their IDE)
 ; -- Renamed "Error.out" to "<filename>.log". After all, the "Error.out" file
 ;    was always created, even on success, it was only shown in case of errors.
 ;    But now PBasmUI creates this log file in the same folder as source file, so
