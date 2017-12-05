@@ -1,5 +1,5 @@
 ; ------------------------------------------------------------------------------
-; "PBasmUI.pb" v3.22-rc04 (release candidate n° 4) | 2017/12/04
+; "PBasmUI.pb" v3.22-rc05 (release candidate n° 5) | 2017/12/05
 ;{------------------------------------------------------------------------------
 ; PBasmUI -- Tristano's version:
 ;    https://github.com/tajmone/PBasmUI
@@ -14,8 +14,18 @@
 ;}------------------------------------------------------------------------------
 
 ; Currently working on:
-; - [ ] BUGFIX: When Exe's path/name string is empty, "Run program" fails to launch
-;       the created exe both with source-compilation and /REASM.
+; - [x] BUGFIX: With /REASM "Run program" fails to launch compiled exe.
+;       The problems was in this If block:
+;
+;           If GetGadgetState(#RunExe) And GetGadgetState(#produceEXE)
+;             RunProgram(exeFile,"",GetPathPart(exeFile),0)
+;           EndIf 
+;
+;       ... which failed with /REASM because #produceEXE would be disabled.
+;       Now changed to:
+;
+;           If GetGadgetState(#RunExe) And (GetGadgetState(#produceEXE) Or GetGadgetState(#REASM))
+;
 ; - [x] My gadgets events tweaks: add call to OptionDependencies() to update other
 ;       gadgets states.
 ; - [x] Rename "Error.out" to "PBasmUI.log" or "<filename>.log".
@@ -81,6 +91,17 @@
 ;       -- When reAsming the current source, the correct "<filename>.asm" will be
 ;          copied to the TEMP folder, reAsmed, and the final exe copied to the
 ;          source file folder.
+; - [ ] When "Product > Executable" is checked and Exe's path/name string is empty,
+;       the exe is compiled as "PureBasic.exe" in %TEMP% folder. But because the
+;       "Executable" checkbox is checked, the user intention is to build a exe
+;       in the source folder, probably he just messed up the path string.
+;         In this case PBasmUI could behave like with /REASM, and provide a default
+;       exe name ("<filename>.exe" or "<filename>_pb.exe").
+;         I'm not sure about this, unlike for /REASM option, here it might be
+;       imposing too many assumption on the user intentions. Maybe it's better to
+;       add a "Restore" button that will reset all the string fields to the
+;       default values instead. Also, this change should be postponed to after
+;       implementing /REASM with "<filename>.asm" anyway.
 ; - [ ] EDGE-CASE FIX: /REASM disabled & activated! (LOW-PRIORITY)
 ;         If the user deletes the "PureBasic.asm" file after the UI ackowledge it,
 ;       /REASM attempt will fail and "Source > /REASM" becomes both activated and
@@ -214,7 +235,7 @@ Else: End: EndIf
     ComboBoxGadget(#CPUmode,#x1,140,#w1,24)
       For i = 1 To #CPUs : AddGadgetItem(#CPUmode,-1,StringField(#CPUoffers,i,",")) : Next
       SetGadgetState(#CPUmode,0)
-    TextGadget(#PB_Any,#x2,145,#w2,20,"More Switches..",#PB_Text_Right)
+    TextGadget(#PB_Any,#x2,145,#w2,20,"More Switches...",#PB_Text_Right)
     StringGadget(#Switches,#x3,140,#w3,24,"")
   CloseGadgetList() 
 
@@ -502,8 +523,10 @@ Procedure RunCompiler()
       Else 
         RunProgram(prog,#q2$+ViewFile+#q2$,"",0)
       EndIf 
-    EndIf 
-    If GetGadgetState(#RunExe) And GetGadgetState(#produceEXE)
+    EndIf
+    ; !!! CHANGED tajmone: With /REASM #produceEXE will be disabled, so check #REASM too (Or) !!!
+    If GetGadgetState(#RunExe) And
+       (GetGadgetState(#produceEXE) Or GetGadgetState(#REASM))
       RunProgram(exeFile,"",GetPathPart(exeFile),0)
     EndIf 
   EndIf 
@@ -588,7 +611,7 @@ End
 ;       http://horstmuc.de/pb/pbasmui.zip
 ;
 ; ------------------------------------------------------------------------------
-;                               v3.22 (2017/12/04)                              
+;                               v3.22 (2017/12/05)                              
 ; ------------------------------------------------------------------------------
 ; -- Renamed "Error.out" to "<filename>.log". After all, the "Error.out" file
 ;    was always created, even on success, it was only shown in case of errors.
