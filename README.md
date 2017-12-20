@@ -1,7 +1,7 @@
 # PBasmUI
 
     PBasmUI v3.22 (Tristano Ajmone fork)
-    PBasmUI v3.21 (Horst Schaeffer upstream)
+    PBasmUI v3.23 (Horst Schaeffer upstream)
     PureBASIC v5.61 | Windows
 
 This project is an offshoot of Horst Schaeffer's __PBasmUI__ — a PureBASIC IDE Add-In to create, view, edit and re-assemble the intermediate assembly code from PureBASIC source files:
@@ -114,6 +114,7 @@ My variations on Horst's original code are built on his __PBasmUI v3.21__ releas
 The `upstreams` folder is for archiving the sources of Horst's releases of __PBasmUI__ (ie: the _upstream_ version). This will simplify the task of integrating changes from newer versions of Horst's __PBasmUI__ into this project (_downstream_), by diffing the source files of the latest release with those of the release this project was built on (ie: v3.21), or of the latest release whose changes have been integrated.
 
 - [`/upstreams/`](./upstreams/)
+    - [`/3-23/`](./upstreams/3-23/)
     - [`/3-21/`](./upstreams/3-21/)
     - [`History.txt`](./upstreams/History.txt)
 

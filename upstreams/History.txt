@@ -1,49 +1,16 @@
-PBasmUI - Version 3.21 by Horst Schaeffer
------------------------------------------
-Compiled with PB 5.61  
+PBasmUI History
+---------------
 
-PBasmUI is a user interface for the command line compiler with 
-the option to produce the assembler file.
-PBasmUI is used as an add-on tool in the PureBasic IDE.
+Version 3.23   - Changes suggested by Tristano Ajmone (see https://github.com/tajmone/PBasmUI )
 
-Features:
-    Generate Assembler file (PB option /COMMENTED) and open it     
-    Produce EXE file and/or run program     
-    Re-assemble current asm file (/REASM) 
-    Change/add options
-    Error messages are captured
+   #ASMMode removed (mistaken switch)
+   Output files in directory of source file instead compiler dir
+   /CHECK switch removed
+   EXE file is produced (by compiler) in any case; redirected if not wanted 
+   Run EXE file condition adjusted
+   OptionDependencies adjusted
 
-PBasmUI.exe expects the PB source file as command parameter. 
-The compiler options to preset the user interface settings are taken..
-    ..either from the file <source>.cfg, e.g. "PBasmUI.pb.cfg", (if found) 
-    ..or from the footer of the source file (commented and normally invisible).
-
-To use PBasmUI.exe as add-on tool in the PB editor: 
-
-    Command line:   "PBasmUI.exe"   with path
-    Arguments:      "%FILE"         (in quote marks!)
-    
-    The path of the PB compiler is obtained from the environment variable. 
-
-How to..
---------
-Produce Assembler file (/COMMENTED):
-    Check "Open PureBasic.asm".
-    This file will be stored in the COMPILERS directory. Select to open the file
-    with Notepad or with the application associatd with .ASM.
-
-    Make sure that the source file and all IncludeFile's have been saved in the
-    IDE!
-
-Assemble latest PureBasic.asm (/REASM):
-    Check (Source) "/REASM current ASM file" (only possible if file available)
-    Make sure that the current "PureBasic.asm" in the PureBasic\COMPILERS directory
-    is the one you want to re-assemble.
-
-
-History
--------
-Version 3.2x
+Version 3.21
     28 NOv 2017 - support of /CONSTANT ; PB 5.61
 Version 3.1
     09 Apr 2016 - various improvements; PB 5.42
@@ -85,10 +52,3 @@ Version 1.2:
     Improved handling of Assembler/Compiler errors.
 
 
-This program is Freeware (c) 2004-2016, Horst Schaeffer. 
-No warranties, no liability of any kind. 
-
-28 NOv 2017
-
-mailto:horst.schaeffer@gmail.com
-http://horstmuc.de/pb/
