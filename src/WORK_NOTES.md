@@ -9,12 +9,12 @@ Various notes and reminders related to development of PBasmUI.
 <!-- MarkdownTOC autolink="true" bracket="round" autoanchor="false" lowercase="true" lowercase_only_ascii="true" uri_encoding="true" depth="3" -->
 
 - [PBasmUI Source](#pbasmui-source)
-  - [Compiler Options](#compiler-options)
-    - [Unicode executable](#unicode-executable)
-  - [“Assembler.out” and “Linker.out”](#%E2%80%9Cassemblerout%E2%80%9D-and-%E2%80%9Clinkerout%E2%80%9D)
+    - [Compiler Options](#compiler-options)
+        - [Unicode executable](#unicode-executable)
+    - [“Assembler.out” and “Linker.out”](#%E2%80%9Cassemblerout%E2%80%9D-and-%E2%80%9Clinkerout%E2%80%9D)
 - [PB Compiler](#pb-compiler)
-  - [Command Line Switches](#command-line-switches)
-    - [/UNICODE](#unicode)
+    - [Command Line Switches](#command-line-switches)
+        - [/UNICODE](#unicode)
 
 <!-- /MarkdownTOC -->
 
