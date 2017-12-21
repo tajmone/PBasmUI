@@ -1,5 +1,5 @@
 ; ------------------------------------------------------------------------------
-; "PBasmUI.pb" v3.22 (stable release) | 2017/12/05
+; "PBasmUI.pb" v3.23a-rc01 (release candidate n° 1) | 2017/12/21
 ;{------------------------------------------------------------------------------
 ; PBasmUI -- Tristano Ajmone's fork:
 ;    https://github.com/tajmone/PBasmUI
@@ -13,75 +13,7 @@
 ; Copyright (c) 2017 Tristano Ajmone -- https://github.com/tajmone/PBasmUI
 ;}------------------------------------------------------------------------------
 
-; ==============================================================================
-;                                   WORK NOTES                                  
-;{==============================================================================
-; -- Unicode executable option "/UNICODE" is deprecated for PB >= 5.50
-;    but the compiler doesn't seem to complain about its presence when checked.
-;    Better keep it for backward comptability with older compilers, especially
-;    when support for additional compilers will be added.
-; -- "Assembler.out" and "Linker.out" Files --- Not sure where and how these two
-;    files would be created. I've tried to raise Fasm and polink errors, but
-;    couldn't locate these files anywhere; all I get is an error report in the
-;    log file (now "<filename>.log", before "Error.out")!
-;      Horst doesn't remember either (too long ago), but he's positive that he
-;    encountered them in real-case scenearios; so either the PB Compiler has
-;    changed its behavior in the course of time, or these files are created in
-;    some edge-case usages (eg: residents, user libraries, corrupted resources,
-;    and the like).
-;      No big deal anyhow, if they do show up they'll be catched by the "If"
-;    block of the Compiler RunProgram process:
-;
-;        If     FileSize(#ASMoutFile) > 0 : ReportFile = #ASMoutFile
-;        ElseIf FileSize(#LinkerFile) > 0 : ReportFile = #LinkerFile
-;
-;    I just wanted to understand better what to expect in term of output files.
-;    Let's just keep an eye open and see if they show up...
-;}---------------------------------------------------------------
-;}==============================================================================
-;                                   TODOs LIST                                  
-;{==============================================================================
-; Wishist of changes and new features to implement.
-; - [ ] Rename "PureBasic.asm" to "<filename>.asm" --- In order to do that, all
-;       compile operations should be carried out in the system TEMP folder:
-;       -- When creating asm file, the "PureBasic.asm" shall be copied renamed to
-;          "<filename>.asm" in the source file folder. This will also allow to
-;          avoid producing the exe file when the corresponding checkbox is unchecked
-;          (currently, there seems no way to produce only the .asm file, the compiler
-;          will always produce the exe file too; using the "/CHECK" option will
-;          prevent creating the .asm file!)
-;       -- When reAsming the current source, the correct "<filename>.asm" will be
-;          copied to the TEMP folder, reAsmed, and the final exe copied to the
-;          source file folder.
-; - [ ] When "Product > Executable" is checked and Exe's path/name string is empty,
-;       the exe is compiled as "PureBasic.exe" in %TEMP% folder. But because the
-;       "Executable" checkbox is checked, the user intention is to build a exe
-;       in the source folder, probably he just messed up the path string.
-;         In this case PBasmUI could behave like with /REASM, and provide a default
-;       exe name ("<filename>.exe" or "<filename>_pb.exe").
-;         I'm not sure about this, unlike for /REASM option, here it might be
-;       imposing too many assumption on the user intentions. Maybe it's better to
-;       add a "Restore" button that will reset all the string fields to the
-;       default values instead. Also, this change should be postponed to after
-;       implementing /REASM with "<filename>.asm" anyway.
-; - [ ] EDGE-CASE FIX: /REASM disabled & activated! (LOW-PRIORITY)
-;         If the user deletes the "PureBasic.asm" file after the UI ackowledge it,
-;       /REASM attempt will fail and "Source > /REASM" becomes both activated and
-;       disabled. This messes up the gadgets states, and the source remains 
-;       "PureBasic.asm" even when trying to compile exe file! And because the user
-;       can't select /REASM any more, the situation is stalled. Since /REASM option
-;       is disabled, checking "Source > PB File" won't change its state to disactivated.
-;         I need to add a check somewhere that detects when /REASM is both disabled
-;       and activated, and set it to disactivated and activate "Source > PB File"
-;       instead.
-;         This isn't a high priority fix because it pertains only to bad usage of
-;       PBasmUI, and the easy solution would be to quit adn restart PBasmUI. 
-;       Neverthlesse, it's worth adding some further gadget checks. Maybe,
-;       checking that the Asm file is still there could be done when "Run" button
-;       is pressed, and before invoking the actual RunCompiler() procedure.
-;}------------------------------------------------------------------------------
-
-#title = "PB Assembler UI  3.22 (tajmone fork)"  
+#title = "PB Assembler UI  3.23a-rc01 (tajmone fork)"  
 #tempfile = 1
 #configfile = 2
 
@@ -126,7 +58,7 @@ Enumeration 1 ; gadgets
   
   #produceEXE : #EXEfile : #ExeBrowse
   #WindowsMode : #ConsoleMode : #DLLMode 
-  #XPMode : #OnErrMode ; #ASMMode : #VersionInfo
+  #XPMode : #OnErrMode ; #VersionInfo
   #UniMode : #ThreadMode
   #AdminMode : #UserMode
   #DebugMode : #CPUmode
@@ -184,7 +116,6 @@ Else: End: EndIf
     OptionGadget(#ConsoleMode,#x1,75,#w1,22,"Console")
     OptionGadget(#DLLMode,#x1,95,#w1,22,"Shared DLL")
     CheckBoxGadget(#XPMode,#x2,55,#w2,22,"XP+ theme support")
-    ;     CheckBoxGadget(#ASMMode,#x2,75,#w2,22,"Inline ASM support") ; !!! tajmone: REMOVED #ASMMode Checkbox !!!
     CheckBoxGadget(#OnErrMode,#x2,75,#w2,22,"OnError lines support") 
     ; CheckBoxGadget(#VersionInfo,#x2,115,#w2,22,"Version info")
     
@@ -344,7 +275,6 @@ Procedure GetPBconfigData()
       SetGadgetState(#withResource,1) 
     EndIf 
     
-;     If GetAssignment("EnableAsm")  :     SetGadgetState(#ASMMode,1) : EndIf ; !!! REMOVED by tajmone !!!
     If GetAssignment("EnableXP")  :      SetGadgetState(#XPMode,1) : EndIf 
     If GetAssignment("EnableUnicode") :  SetGadgetState(#UniMode,1) : EndIf 
     If GetAssignment("EnableThread") :   SetGadgetState(#ThreadMode,1) : EndIf 
@@ -380,9 +310,9 @@ EndProcedure
 #ASMfile    = "PureBasic.asm"   ; In sourcefile directory
 #ASMoutFile = "Assembler.out"   ; when and where??? (see "WORK NOTES" comments)
 #LinkerFile = "Linker.out"      ; when and where??? (see "WORK NOTES" comments)
-; #Errorfile  = "Error.out"     ; !!! CHANGED tajmone: Now replaced by LogFile.s => "<filename>.log" !!!
+
 Procedure RunCompiler()
-  SetCurrentDirectory(GetPathPart(PBsource)) ; !!! CHANGED by tajmone, was: GetPathPart(Compiler) !!!
+  SetCurrentDirectory(GetPathPart(PBsource))
   exeFile.s = GetGadgetText(#EXEfile)
   IconFile.s = GetGadgetText(#IconFile)
   ResourceFile.s = GetGadgetText(#ResourceFile)
@@ -404,16 +334,10 @@ Procedure RunCompiler()
   Else
     DeleteFile(#ASMfile)
     Parameters + " /COMMENTED "
-    
-    ; !!! CHANGED by tajmone: The following "If" is no longer needed, because if we
-    ;     got here is because GetGadgetState(#REASM) has proven false, therefore
-    ;     we already know that GetGadgetState(#compileSource) must be true:
-    ;       If GetGadgetState(#compileSource) : Parameters + #q2$+PBsource+#q2$ : EndIf 
     Parameters + #q2$+PBsource+#q2$
     If GetGadgetState(#produceEXE)
       Parameters + " /EXE " + #q2$+exeFile+#q2$
     Else
-      ; !!! CHANGED by tajmone: The /CHECK switch prevented creating the "PureBasic.asm" file !!!
       ; Redirect exe output to %TEMP%\PureBasic.exe instad:
       Parameters + " /EXE " + DummyExe
     EndIf   
@@ -429,7 +353,6 @@ Procedure RunCompiler()
   
   Parameters + " " + StringField(#CPUoptions,GetGadgetState(#CPUmode)+1,",") 
   If GetGadgetState(#XPMode)        : Parameters + " /XP" : EndIf 
-  ; If GetGadgetState(#ASMMode)     : Parameters + " /INLINEASM" : EndIf ; !!! REMOVED by tajmone !!!
   If GetGadgetState(#OnErrMode)     : Parameters + " /LINENUMBERING" : EndIf 
   ; If GetGadgetState(#VersionInfo) : Parameters + " /INCLUDEVERSIONINFO" : EndIf 
   If GetGadgetState(#UniMode)       : Parameters + " /UNICODE" : EndIf 
@@ -563,60 +486,3 @@ Repeat
   EndIf 
 Until done
 End
-
-; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-;                                   CAHNGELOG                                   
-;{//////////////////////////////////////////////////////////////////////////////
-; List of changes introduced by Tristano Ajmone.
-; Original code base: PBasmUI v3.21 (2017/11/29) by Horst Schaeffer:
-;
-;       http://horstmuc.de/pb/pbasmui.zip
-;
-; ------------------------------------------------------------------------------
-;                               v3.22 (2017/12/05)                              
-; ------------------------------------------------------------------------------
-; -- Added "(tajmone fork)" to UI window title, to avoid confusion with Horst's
-;    original version PBasmUI (some users might keep both versions in their IDE)
-; -- Renamed "Error.out" to "<filename>.log". After all, the "Error.out" file
-;    was always created, even on success, it was only shown in case of errors.
-;    But now PBasmUI creates this log file in the same folder as source file, so
-;    "<filename>.log" is a better choice. Also, the user might wish to keep it. 
-; -- Now PBasmUI outputs the compiled ".exe", the "PureBasic.asm" and the log
-;    file ("<filename>.log") to same folder as the source file.
-; -- When "Product > Executable" is unchecked, the executable file is created in
-;    Win TEMP folder ("%TEMP%\PureBasic.exe"). Previously this was handled by
-;    passing the "/CHECK" switch, but that prevented the "PureBasic.asm" file
-;    being created. There is no way to produce the "PureBasic.asm" file without
-;    the executable, so this solution seems the best one.
-; -- Removed all references to "Inline ASM support" checkbox (#ASMMode):
-;    this UI option was rasing an "/INLINEASM: Unknown switch" error.
-;    PBasmUI was erroneously mistaking the IDE compiler option "Enable inline ASM
-;    support" for a pbcompiler switch --- this option actually refers to enabling
-;    the inline ASM parser in PuerBasic's IDE syntax highlighting:
-;
-;       http://www.purebasic.com/documentation/reference/ide_compiler.html
-;
-;    PureBASIC changelog page doesn't mention an /INLINEASM compiler switch being
-;    deprecated or added:
-;
-;       https://www.purebasic.com/documentation/mainguide/history.html
-;
-; -- Tweaked Gadget Events behavior:
-;    -- Checking "Source > /REASM" option sets to checked and disables the
-;       "Product > Executable" checkbox, and disables the exe path string gadget
-;       too, because With this option creating an exe is mandatory,
-;       it also enables "Start program" checkbox.
-;    -- Checking  "Source > PB File" re-enables "Product > Executable" checkbox
-;       and the exe path string gadget.
-; -- Before invoking the compiler with /REASM option, if exeFile string is empty
-;    it will set it to "<filename>_reAsm.exe" (new Global var reAsmExeDefault.s).
-;    While still allowing user to set a custom exe filename in the "Product >
-;    Executable" string gadget, it also ensures that when this is missing it will
-;    output an exe that will not overwrite the default IDE-compiled file, and that
-;    it's clearly reckognizable as being the reAsmed exe (a precaution in case the
-;    user accidentally deleted the path string).
-; -- FIX: Added #PB_Program_Hide flag to the RunProgam() that invokes PB compiler,
-;    so that it launches in invisible mode. This fixes the flash of the CMD windows
-;    that was opnening and closing in the background when clicking the "Run" button. 
-;    
-;}//////////////////////////////////////////////////////////////////////////////
