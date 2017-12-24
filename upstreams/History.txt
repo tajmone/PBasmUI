@@ -1,8 +1,11 @@
 PBasmUI History
 ---------------
 
-Version 3.23   - Changes suggested by Tristano Ajmone (see https://github.com/tajmone/PBasmUI )
+Version 3.24  
+   24 Dec 2017 -  minor changes in EXE file handling
 
+Version 3.23   - Changes suggested by Tristano Ajmone (see https://github.com/tajmone/PBasmUI )
+   20 Dec 2017
    #ASMMode removed (mistaken switch)
    Output files in directory of source file instead compiler dir
    /CHECK switch removed

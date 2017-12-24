@@ -15,11 +15,13 @@ Each release is in a subfolder named after its version number, with a hyphen sep
 
 | VER.             | REL. DATE    | PB VERSION     |
 | :--------------- | :----------- | :------------- |
+| [`/3-24/`][3.24] | `2017/12/24` | PureBASIC 5.61 |
 | [`/3-23/`][3.23] | `2017/12/20` | PureBASIC 5.61 |
 | [`/3-21/`][3.21] | `2017/11/28` | PureBASIC 5.61 |
 
 [3.23]: ./3-23/ "Link to PBasmUI v3.23 subfolder"
 [3.21]: ./3-21/ "Link to PBasmUI v3.21 subfolder"
+[3.24]: ./3-24/ "Link to PBasmUI v3.24 subfolder"
 
 
 > __NOTE__ — Since Horst's website only offers the latest release of __PBasmUI__ for download (as a Zip archives), some releases might be missed by this archive.

@@ -1,0 +1,59 @@
+PBasmUI - Version 3.22 by Horst Schaeffer
+-----------------------------------------
+Compiled with PB 5.61  
+
+PBasmUI is a user interface for the command line compiler with 
+the option to produce the assembler file.
+PBasmUI is used as an add-on tool in the PureBasic IDE.
+
+Features:
+    Generate Assembler file (PB option /COMMENTED) and open it     
+    Produce EXE file, optionally run program     
+    Re-assemble current asm file (/REASM) 
+    Change/add options
+    Error messages are captured
+
+PBasmUI.exe expects the PB source file as command parameter. 
+The compiler options to preset the user interface settings are taken..
+    ..either from the file <source>.cfg, e.g. "PBasmUI.pb.cfg", (if found) 
+    ..or from the footer of the source file (commented and normally invisible).
+
+The resulting ASM file ("PureBasic.asm") as well as the report file 
+("PBasmUI.log") are written to the source directory. 
+
+Note: The EXE file is produced in any case. If deselected, it will be redirected:
+    .. normal production: to the %temp% directory 
+    .. for REASM: to "(SourceName)_reAsm.exe" in the source directory
+
+To use PBasmUI.exe as add-on tool in the PB editor: 
+
+    Command line:   "PBasmUI.exe"   with path
+    Arguments:      "%FILE"         (in quote marks!)
+    
+    The path of the PB compiler is obtained from the environment variable. 
+
+How to..
+--------
+Produce Assembler file (/COMMENTED):
+    Check "Open PureBasic.asm".
+    This file will be stored in the COMPILERS directory. Select to open the file
+    with Notepad or with the application associatd with .ASM.
+
+    Make sure that the source file and all IncludeFile's have been saved in the
+    IDE!
+
+Assemble latest PureBasic.asm (/REASM):
+    Check (Source) "/REASM current ASM file" (only possible if file available)
+    Make sure that the current "PureBasic.asm" is the one you want to re-assemble.
+
+
+History see History.txt
+
+
+This program is Freeware (c) 2004-2017, Horst Schaeffer. 
+No warranties, no liability of any kind. 
+
+20 Dec 2017
+
+mailto:horst.schaeffer@gmail.com
+http://horstmuc.de/pb/
