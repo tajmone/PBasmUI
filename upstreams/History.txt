@@ -1,6 +1,9 @@
 PBasmUI History
 ---------------
 
+Version 3.25
+   07 Jan 2018 - bugfix: /constant parameter must be passed in (double) quote makrs
+  
 Version 3.24  
    24 Dec 2017 -  minor changes in EXE file handling
 

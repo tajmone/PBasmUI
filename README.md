@@ -1,7 +1,7 @@
 # PBasmUI
 
     PBasmUI v3.22 (Tristano Ajmone fork)
-    PBasmUI v3.23 (Horst Schaeffer upstream)
+    PBasmUI v3.25 (Horst Schaeffer upstream)
     PureBASIC v5.61 | Windows
 
 This project is an offshoot of Horst Schaeffer's __PBasmUI__ — a PureBASIC IDE Add-In to create, view, edit and re-assemble the intermediate assembly code from PureBASIC source files:
