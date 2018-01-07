@@ -9,7 +9,7 @@ Beside keeping an historical archive of __PBasmUI__'s original sources, the purp
 
 # Contents
 
-- [`History.txt`](./upstreams/History.txt) — Changelog file from latest release
+- [`History.txt`](./History.txt) — Changelog file from latest release
 
 Each release is in a subfolder named after its version number, with a hyphen separator insted of the dot:
 
